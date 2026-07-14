@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = 'pwa-202607141053';
+const CACHE_VERSION = 'splash-202607141128';
 /** @type {string} */
 const CACHE_PREFIX = 'Minas del Olvido-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
