@@ -4,13 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <title>Minas del Olvido</title>
+<link rel="icon" href="favicon.ico?v=20260714114825" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=20260714114825">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=20260714114825">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48x48.png?v=20260714114825">
+<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png?v=20260714114825">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260714114825">
+<link rel="manifest" href="index.manifest.json?v=20260714114825">
 <meta name="theme-color" content="#0c0612">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Minas del Olvido">
-<link rel="icon" type="image/png" href="index.icon.png?v=20260714113241">
-<link rel="apple-touch-icon" href="index.apple-touch-icon.png?v=20260714113241">
-<link rel="manifest" href="index.manifest.json?v=20260714113241">
 <style>
 html,body,#canvas{margin:0;padding:0;border:0}
 body{color:#f0e6d8;background:#0c0612;overflow:hidden;touch-action:none;font-family:Segoe UI,Noto Sans,Arial,sans-serif}
@@ -47,7 +51,7 @@ body{color:#f0e6d8;background:#0c0612;overflow:hidden;touch-action:none;font-fam
   <img id="status-splash" class="show-image--false" alt="" style="display:none">
   <h1 id="status-title">MINAS DEL OLVIDO</h1>
   <p id="status-sub">La Veta del Diablo</p>
-  <div id="status-label">Cargandoâ€¦</div>
+  <div id="status-label">CargandoÃ¢â‚¬Â¦</div>
   <progress id="status-progress"></progress>
   <div id="status-notice"></div>
 </div>
@@ -55,7 +59,7 @@ body{color:#f0e6d8;background:#0c0612;overflow:hidden;touch-action:none;font-fam
 <script>
 // HARD cache reset once (kills old Godot splash in service worker)
 (function(){
-  var KEY = 'minas_sw_reset_v3';
+  var KEY = 'minas_sw_reset_v4_icons';
   if (localStorage.getItem(KEY)) return;
   if (!('serviceWorker' in navigator)) { localStorage.setItem(KEY,'1'); return; }
   navigator.serviceWorker.getRegistrations().then(function(regs){
@@ -131,11 +135,11 @@ const engine = new Engine(GODOT_CONFIG);
       if (current > 0 && total > 0) {
         statusProgress.value = current;
         statusProgress.max = total;
-        if (statusLabel) statusLabel.textContent = 'Cargandoâ€¦ ' + Math.min(100, Math.round(current / total * 100)) + '%';
+        if (statusLabel) statusLabel.textContent = 'CargandoÃ¢â‚¬Â¦ ' + Math.min(100, Math.round(current / total * 100)) + '%';
       } else {
         statusProgress.removeAttribute('value');
         statusProgress.removeAttribute('max');
-        if (statusLabel) statusLabel.textContent = 'Cargandoâ€¦';
+        if (statusLabel) statusLabel.textContent = 'CargandoÃ¢â‚¬Â¦';
       }
     }
   }).then(function () {
