@@ -1,22 +1,47 @@
 {
   "name": "Minas del Olvido",
   "short_name": "Minas",
-  "description": "Minas del Olvido - La Veta del Diablo",
-  "start_url": "./index.html",
-  "scope": "./",
-  "id": "./index.html",
+  "description": "La Veta del Diablo - mina, explora y sobrevive",
+  "lang": "es",
+  "dir": "ltr",
+  "id": "/MinasDelOlvido-web/?app=minas-v2",
+  "start_url": "/MinasDelOlvido-web/index.html?app=minas-v2",
+  "scope": "/MinasDelOlvido-web/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "any",
   "background_color": "#0c0612",
   "theme_color": "#0c0612",
   "icons": [
-    { "src": "favicon-48x48.png", "sizes": "48x48", "type": "image/png", "purpose": "any" },
-    { "src": "icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
-    { "src": "index.144x144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
-    { "src": "index.192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "index.512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "https://wasiyoo.github.io/MinasDelOlvido-web/minas-192.png?v=pwa2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://wasiyoo.github.io/MinasDelOlvido-web/minas-512.png?v=pwa2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://wasiyoo.github.io/MinasDelOlvido-web/minas-maskable-192.png?v=pwa2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://wasiyoo.github.io/MinasDelOlvido-web/minas-maskable-512.png?v=pwa2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://wasiyoo.github.io/MinasDelOlvido-web/minas-180.png?v=pwa2",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
   ]
 }
