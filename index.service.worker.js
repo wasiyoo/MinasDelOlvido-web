@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = 'pwa-icons-pwa2';
+const CACHE_VERSION = 'splash-art-202607151216';
 /** @type {string} */
 const CACHE_PREFIX = 'Minas del Olvido-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
@@ -14,7 +14,7 @@ const OFFLINE_URL = 'index.offline.html';
 const ENSURE_CROSSORIGIN_ISOLATION_HEADERS = false;
 // Files that will be cached on load.
 /** @type {string[]} */
-const CACHED_FILES = ["index.html","index.js","index.offline.html","index.manifest.json","favicon.ico","minas-32.png","minas-48.png","minas-180.png","minas-192.png","minas-512.png","minas-maskable-192.png","minas-maskable-512.png","index.audio.worklet.js","index.audio.position.worklet.js"];
+const CACHED_FILES = ["index.html","index.js","index.offline.html","index.manifest.json","favicon.ico","minas-32.png","minas-48.png","minas-180.png","minas-192.png","minas-512.png","loading_splash.png","index.audio.worklet.js","index.audio.position.worklet.js"];
 // Files that we might not want the user to preload, and will only be cached on first load.
 /** @type {string[]} */
 const CACHEABLE_FILES = ["index.wasm","index.pck"];
