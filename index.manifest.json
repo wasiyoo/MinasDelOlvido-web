@@ -1,56 +1,61 @@
 {
     "id":  "./",
-    "orientation":  "any",
-    "lang":  "es",
-    "dir":  "ltr",
-    "background_color":  "#1a0d24",
     "name":  "Minas del Olvido",
-    "theme_color":  "#1a0d24",
-    "display":  "standalone",
+    "short_name":  "Minas",
     "description":  "Aventura de minas estilo Terraria. Juega y guarda en el celular.",
     "start_url":  "./index.html",
     "scope":  "./",
+    "display":  "fullscreen",
+    "display_override":  [
+                             "fullscreen",
+                             "standalone",
+                             "minimal-ui"
+                         ],
+    "orientation":  "any",
+    "background_color":  "#000000",
+    "theme_color":  "#000000",
+    "lang":  "es",
+    "dir":  "ltr",
     "categories":  [
                        "games",
                        "entertainment"
                    ],
     "icons":  [
                   {
-                      "purpose":  "any",
-                      "type":  "image/png",
+                      "src":  "index.192x192.png",
                       "sizes":  "192x192",
-                      "src":  "index.192x192.png"
+                      "type":  "image/png",
+                      "purpose":  "any"
                   },
                   {
-                      "purpose":  "any",
-                      "type":  "image/png",
+                      "src":  "index.512x512.png",
                       "sizes":  "512x512",
-                      "src":  "index.512x512.png"
+                      "type":  "image/png",
+                      "purpose":  "any"
                   },
                   {
-                      "purpose":  "any",
-                      "type":  "image/png",
+                      "src":  "index.144x144.png",
                       "sizes":  "144x144",
-                      "src":  "index.144x144.png"
+                      "type":  "image/png",
+                      "purpose":  "any"
                   },
                   {
-                      "purpose":  "any",
-                      "type":  "image/png",
+                      "src":  "index.180x180.png",
                       "sizes":  "180x180",
-                      "src":  "index.180x180.png"
+                      "type":  "image/png",
+                      "purpose":  "any"
                   },
                   {
-                      "purpose":  "maskable",
-                      "type":  "image/png",
+                      "src":  "minas-maskable-192.png",
                       "sizes":  "192x192",
-                      "src":  "minas-maskable-192.png"
+                      "type":  "image/png",
+                      "purpose":  "maskable"
                   },
                   {
-                      "purpose":  "maskable",
-                      "type":  "image/png",
+                      "src":  "minas-maskable-512.png",
                       "sizes":  "512x512",
-                      "src":  "minas-maskable-512.png"
+                      "type":  "image/png",
+                      "purpose":  "maskable"
                   }
-              ],
-    "short_name":  "Minas"
+              ]
 }
