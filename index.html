@@ -95,17 +95,31 @@ body {
 
 
 
-<link rel="icon" type="image/png" sizes="192x192" href="index.192x192.png" />
-<link rel="icon" type="image/png" sizes="512x512" href="index.512x512.png" />
-
-<meta name="color-scheme" content="dark" />
 
 
 
 
 
 
-<meta name="format-detection" content="telephone=no" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- PWA_HEAD_START -->
 <link rel="manifest" href="index.manifest.json" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png" sizes="180x180" />
 <link rel="icon" type="image/png" sizes="192x192" href="index.192x192.png" />
@@ -119,6 +133,7 @@ body {
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Minas" />
 <meta name="format-detection" content="telephone=no" />
+<!-- PWA_HEAD_END -->
 </head>
 	<body>
 		<canvas id="canvas">
@@ -242,162 +257,6 @@ const engine = new Engine(GODOT_CONFIG);
 }());
 		</script>
 	<style id="pwa-install-css">
-#pwa-install-banner {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  z-index: 2147483000;
-  display: none;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, rgba(36,18,48,0.96), rgba(18,10,28,0.98));
-  border: 1px solid rgba(180,120,200,0.55);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.55);
-  color: #f4efe8;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-  font-size: 14px;
-  line-height: 1.3;
-  pointer-events: auto;
-}
-#pwa-install-banner.show { display: flex; }
-#pwa-install-banner .pwa-txt { flex: 1; min-width: 0; }
-#pwa-install-banner .pwa-title { font-weight: 700; font-size: 15px; margin-bottom: 2px; color: #f0d48a; }
-#pwa-install-banner .pwa-sub { opacity: 0.9; font-size: 12px; }
-#pwa-install-banner button {
-  border: 0;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-#pwa-install-banner .pwa-ok {
-  background: #c9a227;
-  color: #1a0d24;
-}
-#pwa-install-banner .pwa-no {
-  background: transparent;
-  color: #d8cfc4;
-  border: 1px solid rgba(200,180,160,0.35) !important;
-}
-@media (min-width: 900px) {
-  #pwa-install-banner { max-width: 420px; left: auto; right: 16px; }
-}
-</style>
-<div id="pwa-install-banner" role="dialog" aria-live="polite" aria-label="Instalar aplicacion">
-  <div class="pwa-txt">
-    <div class="pwa-title">Instalar Minas del Olvido</div>
-    <div class="pwa-sub" id="pwa-install-sub">Agregala a tu pantalla de inicio y juega como app.</div>
-  </div>
-  <button type="button" class="pwa-no" id="pwa-dismiss" aria-label="Cerrar">No</button>
-  <button type="button" class="pwa-ok" id="pwa-install-btn">Instalar</button>
-</div>
-<script id="pwa-install-js">
-(function () {
-  var banner = document.getElementById('pwa-install-banner');
-  var btn = document.getElementById('pwa-install-btn');
-  var sub = document.getElementById('pwa-install-sub');
-  var dismiss = document.getElementById('pwa-dismiss');
-  if (!banner || !btn) return;
-
-  var LS_KEY = 'minas_pwa_install_dismissed_v1';
-  var deferred = null;
-  var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
-    || window.navigator.standalone === true;
-  if (isStandalone) return;
-  if (localStorage.getItem(LS_KEY) === '1') return;
-
-  function isIos() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent)
-      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  }
-  function isAndroid() {
-    return /android/i.test(navigator.userAgent);
-  }
-  function show() {
-    banner.classList.add('show');
-  }
-  function hide() {
-    banner.classList.remove('show');
-  }
-
-  dismiss.addEventListener('click', function () {
-    localStorage.setItem(LS_KEY, '1');
-    hide();
-  });
-
-  // Android / Chrome: evento nativo de instalacion
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferred = e;
-    sub.textContent = 'Instalala y se abrira a pantalla completa, como una app.';
-    btn.textContent = 'Instalar';
-    show();
-  });
-
-  window.addEventListener('appinstalled', function () {
-    deferred = null;
-    localStorage.setItem(LS_KEY, '1');
-    hide();
-  });
-
-  btn.addEventListener('click', function () {
-    if (deferred) {
-      deferred.prompt();
-      deferred.userChoice.then(function (choice) {
-        deferred = null;
-        if (choice && choice.outcome === 'accepted') {
-          localStorage.setItem(LS_KEY, '1');
-        }
-        hide();
-      });
-      return;
-    }
-    if (isIos()) {
-      sub.textContent = 'En Safari: toca Compartir y luego "Anadir a pantalla de inicio".';
-      btn.textContent = 'Entendido';
-      btn.onclick = function () {
-        localStorage.setItem(LS_KEY, '1');
-        hide();
-      };
-      return;
-    }
-    // Fallback si el navegador no dispara beforeinstallprompt
-    sub.textContent = 'Menu del navegador (â‹®) â†’ "Instalar app" o "Anadir a pantalla de inicio".';
-    btn.textContent = 'Entendido';
-    btn.onclick = function () {
-      localStorage.setItem(LS_KEY, '1');
-      hide();
-    };
-  });
-
-  // iOS / otros: mostrar ayuda de instalacion tras un rato (engagement)
-  setTimeout(function () {
-    if (deferred || banner.classList.contains('show')) return;
-    if (isIos()) {
-      sub.textContent = 'En Safari: Compartir â†’ "Anadir a pantalla de inicio".';
-      btn.textContent = 'Como instalar';
-      show();
-    } else if (isAndroid()) {
-      sub.textContent = 'Si no ves el aviso: menu â‹® â†’ Instalar app.';
-      btn.textContent = 'Como instalar';
-      show();
-    }
-  }, 4500);
-
-  // Registrar SW cuanto antes (ademas del registro de Godot al terminar de cargar)
-  if ('serviceWorker' in navigator) {
-    try {
-      navigator.serviceWorker.register('index.service.worker.js').catch(function () {});
-    } catch (e) {}
-  }
-})();
-</script>
-<style id="pwa-install-css">
 #pwa-install-banner {
   position: fixed;
   left: 12px;
