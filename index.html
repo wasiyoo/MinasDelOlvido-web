@@ -84,7 +84,7 @@ body{color:#f0e6d8;background:#0a0604;overflow:hidden;touch-action:none;font-fam
 <script src="index.js?v=202607151216"></script>
 <script>
 (function(){
-  var KEY = 'minas_sw_reset_v9_close_search';
+  var KEY = 'minas_sw_reset_v10_mobile';
   if (localStorage.getItem(KEY)) return;
   if (!('serviceWorker' in navigator)) { localStorage.setItem(KEY,'1'); return; }
   navigator.serviceWorker.getRegistrations().then(function(regs){
@@ -101,7 +101,7 @@ body{color:#f0e6d8;background:#0a0604;overflow:hidden;touch-action:none;font-fam
   }).catch(function(){ localStorage.setItem(KEY,'1'); });
 })();
 
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":15596932,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17704072,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
