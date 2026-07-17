@@ -100,6 +100,8 @@ body {
 
 
 
+
+
 <!-- FULLSCREEN_CSS_START -->
 <style id="fullscreen-mobile-css">
 /* Ocupar TODO el viewport visual del celular (sin franjas ni scroll) */
@@ -189,9 +191,14 @@ body {
   width: 100% !important;
   object-fit: cover !important;
 }
-/* Ocultar barra nativa de Godot; usamos #minas-load-* con estilo del juego */
+/* Solo el splash del juego (PNG con CARGANDO + barra). Sin barra HTML extra ni de Godot. */
 #status-progress,
-progress#status-progress {
+progress#status-progress,
+#minas-load-wrap,
+#minas-load-caption,
+#minas-load-track,
+#minas-load-fill,
+#minas-load-pct {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
@@ -203,80 +210,6 @@ progress#status-progress {
   left: -9999px !important;
   appearance: none !important;
   -webkit-appearance: none !important;
-}
-/* Barra animada: tapa por completo CARGANDO + barra dibujados en el PNG del splash */
-#minas-load-wrap {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 22%;
-  min-height: 120px;
-  z-index: 5;
-  pointer-events: none;
-  text-align: center;
-  display: none;
-  box-sizing: border-box;
-  padding: 18px 16px 28px;
-  /* Capa opaca: oculta la barra estatica del arte (la de abajo en la captura) */
-  background: #050308;
-  background: linear-gradient(to top, #050308 0%, #050308 72%, rgba(5,3,8,0.97) 88%, rgba(5,3,8,0) 100%);
-}
-#minas-load-wrap.show { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
-#minas-load-caption {
-  font-family: "Segoe UI", system-ui, sans-serif;
-  font-size: clamp(11px, 1.6vw, 14px);
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: #f2e6c0;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.95);
-  margin-bottom: 10px;
-}
-#minas-load-track {
-  position: relative;
-  width: min(46vw, 460px);
-  max-width: 92%;
-  height: 22px;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #1a120c 0%, #0c0806 100%);
-  border: 2px solid #8a6528;
-  box-shadow:
-    0 0 0 1px rgba(0,0,0,0.85),
-    inset 0 2px 4px rgba(0,0,0,0.55),
-    0 4px 14px rgba(0,0,0,0.5);
-  overflow: hidden;
-}
-#minas-load-fill {
-  height: 100%;
-  width: 4%;
-  min-width: 2%;
-  border-radius: 10px;
-  background: linear-gradient(90deg,
-    #6b4010 0%,
-    #c9891c 28%,
-    #f0c040 55%,
-    #e8a820 78%,
-    #a86814 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 236, 180, 0.55);
-  transition: width 0.22s ease-out;
-  position: relative;
-}
-#minas-load-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 55%);
-  border-radius: inherit;
-  pointer-events: none;
-}
-#minas-load-pct {
-  margin-top: 8px;
-  font-family: "Segoe UI", system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #e8d9a0;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-  opacity: 0.95;
 }
 #status-notice {
   position: relative;
@@ -320,9 +253,7 @@ progress#status-progress {
 		<div id="status">
 			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="index.png" alt="Minas del Olvido">
 			<progress id="status-progress"></progress>
-			<div id="minas-load-wrap" aria-live="polite" aria-label="Cargando">
-				<div id="minas-load-caption">CARGANDO...</div>
-				<div id="minas-load-track"><div id="minas-load-fill"></div></div>
+</div>
 				<div id="minas-load-pct">0%</div>
 			</div>
 			<div id="status-notice"></div>
@@ -353,11 +284,6 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 		statusOverlay.style.visibility = 'visible';
 		statusProgress.style.display = 'none';
-			var _minasWrap = document.getElementById('minas-load-wrap');
-			if (_minasWrap) {
-				if (mode === 'progress') { _minasWrap.classList.add('show'); }
-				else { _minasWrap.classList.remove('show'); }
-			}
 		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
 		statusMode = mode;
 	}
@@ -424,20 +350,7 @@ const engine = new Engine(GODOT_CONFIG);
 	} else {
 		setStatusMode('progress');
 		engine.startGame({
-			'onProgress': function (current, total) {
-				var fill = document.getElementById('minas-load-fill');
-				var pctEl = document.getElementById('minas-load-pct');
-				var wrap = document.getElementById('minas-load-wrap');
-				if (wrap) wrap.classList.add('show');
-				var pct = 4;
-				if (current > 0 && total > 0) {
-					pct = Math.max(4, Math.min(100, Math.round((current / total) * 100)));
-				} else {
-					pct = Math.min(35, 4 + (Date.now() % 8000) / 8000 * 30);
-				}
-				if (fill) fill.style.width = pct + '%';
-				if (pctEl) pctEl.textContent = (current > 0 && total > 0) ? (pct + '%') : '...';
-			},
+			'onProgress': function (_c, _t) {},
 		}).then(() => {
 			setStatusMode('hidden');
 		}, displayFailureNotice);
@@ -648,7 +561,7 @@ const engine = new Engine(GODOT_CONFIG);
       btn.onclick = function () { localStorage.setItem(LS_KEY, '1'); hide(); };
       return;
     }
-    sub.textContent = 'Menu del navegador (â‹®) -> Instalar app.';
+    sub.textContent = 'Menu del navegador (Ã¢â€¹Â®) -> Instalar app.';
     btn.textContent = 'Entendido';
     btn.onclick = function () { localStorage.setItem(LS_KEY, '1'); hide(); };
   });
@@ -660,7 +573,7 @@ const engine = new Engine(GODOT_CONFIG);
       btn.textContent = 'Como instalar';
       show();
     } else if (isAndroid()) {
-      sub.textContent = 'Para pantalla completa: menu â‹® -> Instalar app.';
+      sub.textContent = 'Para pantalla completa: menu Ã¢â€¹Â® -> Instalar app.';
       btn.textContent = 'Como instalar';
       show();
     }
