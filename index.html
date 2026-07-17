@@ -98,6 +98,8 @@ body {
 
 
 
+
+
 <!-- FULLSCREEN_CSS_START -->
 <style id="fullscreen-mobile-css">
 /* Ocupar TODO el viewport visual del celular (sin franjas ni scroll) */
@@ -202,49 +204,53 @@ progress#status-progress {
   appearance: none !important;
   -webkit-appearance: none !important;
 }
-/* Barra animada del juego: cubre la barra estÃ¡tica del splash y se rellena con el % real */
+/* Barra animada: tapa por completo CARGANDO + barra dibujados en el PNG del splash */
 #minas-load-wrap {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+  height: 22%;
+  min-height: 120px;
   z-index: 5;
   pointer-events: none;
   text-align: center;
   display: none;
-  padding: 28px 16px 36px;
-  /* Oscurece la barra estÃ¡tica dibujada en el PNG para no ver dos barras */
-  background: linear-gradient(to top, rgba(5,3,8,0.92) 0%, rgba(5,3,8,0.75) 55%, transparent 100%);
+  box-sizing: border-box;
+  padding: 18px 16px 28px;
+  /* Capa opaca: oculta la barra estatica del arte (la de abajo en la captura) */
+  background: #050308;
+  background: linear-gradient(to top, #050308 0%, #050308 72%, rgba(5,3,8,0.97) 88%, rgba(5,3,8,0) 100%);
 }
-#minas-load-wrap.show { display: block; }
+#minas-load-wrap.show { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
 #minas-load-caption {
   font-family: "Segoe UI", system-ui, sans-serif;
   font-size: clamp(11px, 1.6vw, 14px);
   font-weight: 700;
   letter-spacing: 0.22em;
   color: #f2e6c0;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.6);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.95);
   margin-bottom: 10px;
 }
 #minas-load-track {
   position: relative;
   width: min(46vw, 460px);
-  margin: 0 auto;
-  height: 20px;
-  border-radius: 11px;
+  max-width: 92%;
+  height: 22px;
+  border-radius: 12px;
   background: linear-gradient(180deg, #1a120c 0%, #0c0806 100%);
-  border: 2px solid #7a5a2a;
+  border: 2px solid #8a6528;
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.75),
+    0 0 0 1px rgba(0,0,0,0.85),
     inset 0 2px 4px rgba(0,0,0,0.55),
-    0 4px 14px rgba(0,0,0,0.45);
+    0 4px 14px rgba(0,0,0,0.5);
   overflow: hidden;
 }
 #minas-load-fill {
   height: 100%;
   width: 4%;
   min-width: 2%;
-  border-radius: 9px;
+  border-radius: 10px;
   background: linear-gradient(90deg,
     #6b4010 0%,
     #c9891c 28%,
@@ -264,13 +270,13 @@ progress#status-progress {
   pointer-events: none;
 }
 #minas-load-pct {
-  margin-top: 6px;
+  margin-top: 8px;
   font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: #e8d9a0;
   text-shadow: 0 1px 3px rgba(0,0,0,0.9);
-  opacity: 0.9;
+  opacity: 0.95;
 }
 #status-notice {
   position: relative;
