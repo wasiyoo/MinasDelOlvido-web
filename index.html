@@ -94,7 +94,11 @@ body {
 
 
 
-	<!-- FULLSCREEN_CSS_START -->
+	
+
+
+
+<!-- FULLSCREEN_CSS_START -->
 <style id="fullscreen-mobile-css">
 /* Ocupar TODO el viewport visual del celular (sin franjas ni scroll) */
 html {
@@ -183,7 +187,7 @@ body {
   width: 100% !important;
   object-fit: cover !important;
 }
-/* Ocultar COMPLETAMENTE la barra nativa de Godot (el arte del splash ya trae CARGANDO + barra) */
+/* Ocultar barra nativa de Godot; usamos #minas-load-* con estilo del juego */
 #status-progress,
 progress#status-progress {
   display: none !important;
@@ -198,9 +202,79 @@ progress#status-progress {
   appearance: none !important;
   -webkit-appearance: none !important;
 }
+/* Barra animada del juego: cubre la barra estÃ¡tica del splash y se rellena con el % real */
+#minas-load-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  text-align: center;
+  display: none;
+  padding: 28px 16px 36px;
+  /* Oscurece la barra estÃ¡tica dibujada en el PNG para no ver dos barras */
+  background: linear-gradient(to top, rgba(5,3,8,0.92) 0%, rgba(5,3,8,0.75) 55%, transparent 100%);
+}
+#minas-load-wrap.show { display: block; }
+#minas-load-caption {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: clamp(11px, 1.6vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #f2e6c0;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.6);
+  margin-bottom: 10px;
+}
+#minas-load-track {
+  position: relative;
+  width: min(46vw, 460px);
+  margin: 0 auto;
+  height: 20px;
+  border-radius: 11px;
+  background: linear-gradient(180deg, #1a120c 0%, #0c0806 100%);
+  border: 2px solid #7a5a2a;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.75),
+    inset 0 2px 4px rgba(0,0,0,0.55),
+    0 4px 14px rgba(0,0,0,0.45);
+  overflow: hidden;
+}
+#minas-load-fill {
+  height: 100%;
+  width: 4%;
+  min-width: 2%;
+  border-radius: 9px;
+  background: linear-gradient(90deg,
+    #6b4010 0%,
+    #c9891c 28%,
+    #f0c040 55%,
+    #e8a820 78%,
+    #a86814 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 236, 180, 0.55);
+  transition: width 0.22s ease-out;
+  position: relative;
+}
+#minas-load-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, transparent 55%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+#minas-load-pct {
+  margin-top: 6px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8d9a0;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  opacity: 0.9;
+}
 #status-notice {
   position: relative;
-  z-index: 3;
+  z-index: 6;
   max-width: 90%;
 }
 
@@ -240,6 +314,11 @@ progress#status-progress {
 		<div id="status">
 			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="index.png" alt="Minas del Olvido">
 			<progress id="status-progress"></progress>
+			<div id="minas-load-wrap" aria-live="polite" aria-label="Cargando">
+				<div id="minas-load-caption">CARGANDO...</div>
+				<div id="minas-load-track"><div id="minas-load-fill"></div></div>
+				<div id="minas-load-pct">0%</div>
+			</div>
 			<div id="status-notice"></div>
 		</div>
 
@@ -268,6 +347,11 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 		statusOverlay.style.visibility = 'visible';
 		statusProgress.style.display = 'none';
+			var _minasWrap = document.getElementById('minas-load-wrap');
+			if (_minasWrap) {
+				if (mode === 'progress') { _minasWrap.classList.add('show'); }
+				else { _minasWrap.classList.remove('show'); }
+			}
 		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
 		statusMode = mode;
 	}
@@ -335,13 +419,18 @@ const engine = new Engine(GODOT_CONFIG);
 		setStatusMode('progress');
 		engine.startGame({
 			'onProgress': function (current, total) {
+				var fill = document.getElementById('minas-load-fill');
+				var pctEl = document.getElementById('minas-load-pct');
+				var wrap = document.getElementById('minas-load-wrap');
+				if (wrap) wrap.classList.add('show');
+				var pct = 4;
 				if (current > 0 && total > 0) {
-					statusProgress.value = current;
-					statusProgress.max = total;
+					pct = Math.max(4, Math.min(100, Math.round((current / total) * 100)));
 				} else {
-					statusProgress.removeAttribute('value');
-					statusProgress.removeAttribute('max');
+					pct = Math.min(35, 4 + (Date.now() % 8000) / 8000 * 30);
 				}
+				if (fill) fill.style.width = pct + '%';
+				if (pctEl) pctEl.textContent = (current > 0 && total > 0) ? (pct + '%') : '...';
 			},
 		}).then(() => {
 			setStatusMode('hidden');
