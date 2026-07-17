@@ -90,7 +90,7 @@ body {
 	z-index: 1;
 }
 		</style>
-		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+		<link id="game-favicon" rel="icon" type="image/png" href="index.icon.png" />
 
 
 
@@ -126,7 +126,6 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  /* En notch: el canvas llega al borde; UI del juego puede usar safe-area si hace falta */
   padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
   box-sizing: border-box;
 }
@@ -149,14 +148,62 @@ body {
   z-index: 1;
   background: #000;
 }
+
+/* ===== Pantalla de carga del juego (sin barra nativa de Godot) ===== */
 #status {
   position: fixed !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  z-index: 2;
+  z-index: 100 !important;
+  background: #05030a !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  visibility: hidden;
 }
-/* PWA instalada: sin UI del navegador */
+#status-splash {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  image-rendering: auto;
+  z-index: 0;
+}
+#status-splash.fullsize--true {
+  height: 100% !important;
+  width: 100% !important;
+  object-fit: cover !important;
+}
+/* Ocultar COMPLETAMENTE la barra nativa de Godot (el arte del splash ya trae CARGANDO + barra) */
+#status-progress,
+progress#status-progress {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -9999px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+#status-notice {
+  position: relative;
+  z-index: 3;
+  max-width: 90%;
+}
+
 @media (display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui) {
   html, body, #canvas {
     width: 100% !important;
@@ -191,14 +238,14 @@ body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="index.png" alt="">
+			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="index.png" alt="Minas del Olvido">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17714888,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":17712888,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -220,7 +267,7 @@ const engine = new Engine(GODOT_CONFIG);
 			return;
 		}
 		statusOverlay.style.visibility = 'visible';
-		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusProgress.style.display = 'none';
 		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
 		statusMode = mode;
 	}
