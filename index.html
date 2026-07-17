@@ -250,12 +250,9 @@ progress#status-progress,
 			Your browser does not support JavaScript.
 		</noscript>
 
-		<div id="status">
+				<div id="status">
 			<img id="status-splash" class="show-image--true fullsize--true use-filter--false" src="index.png" alt="Minas del Olvido">
 			<progress id="status-progress"></progress>
-</div>
-				<div id="minas-load-pct">0%</div>
-			</div>
 			<div id="status-notice"></div>
 		</div>
 
@@ -561,7 +558,7 @@ const engine = new Engine(GODOT_CONFIG);
       btn.onclick = function () { localStorage.setItem(LS_KEY, '1'); hide(); };
       return;
     }
-    sub.textContent = 'Menu del navegador (Ã¢â€¹Â®) -> Instalar app.';
+    sub.textContent = 'Menu del navegador (ÃƒÂ¢Ã¢â‚¬Â¹Ã‚Â®) -> Instalar app.';
     btn.textContent = 'Entendido';
     btn.onclick = function () { localStorage.setItem(LS_KEY, '1'); hide(); };
   });
@@ -573,7 +570,7 @@ const engine = new Engine(GODOT_CONFIG);
       btn.textContent = 'Como instalar';
       show();
     } else if (isAndroid()) {
-      sub.textContent = 'Para pantalla completa: menu Ã¢â€¹Â® -> Instalar app.';
+      sub.textContent = 'Para pantalla completa: menu ÃƒÂ¢Ã¢â‚¬Â¹Ã‚Â® -> Instalar app.';
       btn.textContent = 'Como instalar';
       show();
     }
