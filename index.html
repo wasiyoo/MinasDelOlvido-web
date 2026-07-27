@@ -351,6 +351,9 @@ progress#status-progress,
   window.minasUnlockAudio = function () {
     window.__minasAudioGestureSeen = true;
     for (var i = 0; i < contexts.length; i++) resumeContext(contexts[i]);
+    if (window.minasAudioBridge && window.minasAudioBridge.unlock) {
+      window.minasAudioBridge.unlock();
+    }
     return contexts.length;
   };
 
@@ -361,6 +364,210 @@ progress#status-progress,
     }
     return { gestureSeen: window.__minasAudioGestureSeen, contexts: contexts.length, states: states };
   };
+
+  // Puente de reproduccion web. Godot conserva sus AudioStreamPlayer para
+  // escritorio, mientras que HTML5 usa elementos <audio> externos. Esto evita
+  // que Chrome/Safari/PWA dejen los reproductores en "playing" pero mudos.
+  window.minasAudioBridge = (function () {
+    var activeMusic = null;
+    var ambience = null;
+    var effects = [];
+    var musicMaster = 0.7;
+    var sfxMaster = 0.85;
+
+    function clamp01(value) {
+      value = Number(value);
+      if (!isFinite(value)) return 0;
+      return Math.max(0, Math.min(1, value));
+    }
+
+    function resolveUrl(url) {
+      try { return new URL(String(url || ''), document.baseURI).href; }
+      catch (e) { return String(url || ''); }
+    }
+
+    function markAudioState(audio, state) {
+      if (!audio) return;
+      try { audio.setAttribute('data-minas-state', state); } catch (e) {}
+    }
+
+    function safePlay(audio) {
+      if (!audio) return;
+      try {
+        var promise = audio.play();
+        if (promise && promise.then) {
+          promise.then(function () { markAudioState(audio, 'playing'); })
+            .catch(function () { markAudioState(audio, 'blocked'); });
+        } else {
+          markAudioState(audio, audio.paused ? 'blocked' : 'playing');
+        }
+      } catch (e) { markAudioState(audio, 'error'); }
+    }
+
+    function ramp(audio, target, duration, done) {
+      if (!audio) { if (done) done(); return; }
+      var token = (audio.__minasFadeToken || 0) + 1;
+      audio.__minasFadeToken = token;
+      var start = Number(audio.volume) || 0;
+      var end = clamp01(target);
+      var ms = Math.max(0, Number(duration) || 0);
+      if (ms <= 16) {
+        audio.volume = end;
+        if (done) done();
+        return;
+      }
+      var began = performance.now();
+      function frame(now) {
+        if (audio.__minasFadeToken !== token) return;
+        var t = Math.max(0, Math.min(1, (now - began) / ms));
+        audio.volume = clamp01(start + (end - start) * t);
+        if (t < 1) requestAnimationFrame(frame);
+        else if (done) done();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function disposeAudio(audio) {
+      if (!audio) return;
+      try {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+        if (audio.parentNode) audio.parentNode.removeChild(audio);
+      } catch (e) {}
+    }
+
+    function makeAudio(url, loop, role) {
+      var audio = document.createElement('audio');
+      audio.src = resolveUrl(url);
+      audio.preload = 'auto';
+      audio.loop = Boolean(loop);
+      audio.playsInline = true;
+      audio.hidden = true;
+      audio.setAttribute('data-minas-audio', role || 'sfx');
+      audio.setAttribute('data-minas-state', 'requested');
+      (document.body || document.documentElement).appendChild(audio);
+      return audio;
+    }
+
+    function musicTarget(audio) {
+      return clamp01((audio && audio.__minasGain != null ? audio.__minasGain : 1) * musicMaster);
+    }
+
+    function playMusic(options) {
+      options = options || {};
+      var url = resolveUrl(options.url);
+      var gain = clamp01(options.gain == null ? 1 : options.gain);
+      var fade = Math.max(0, Number(options.fade_ms) || 0);
+      if (activeMusic && activeMusic.src === url && !options.force) {
+        activeMusic.__minasGain = gain;
+        ramp(activeMusic, musicTarget(activeMusic), Math.min(220, fade));
+        safePlay(activeMusic);
+        return;
+      }
+      var previous = activeMusic;
+      var next = makeAudio(url, options.loop !== false, 'music');
+      next.__minasGain = gain;
+      next.volume = previous && fade > 0 ? 0 : musicTarget(next);
+      activeMusic = next;
+      safePlay(next);
+      ramp(next, musicTarget(next), fade);
+      if (previous) {
+        ramp(previous, 0, fade, function () {
+          disposeAudio(previous);
+        });
+      }
+    }
+
+    function stopMusic(options) {
+      options = options || {};
+      var current = activeMusic;
+      activeMusic = null;
+      if (!current) return;
+      ramp(current, 0, Number(options.fade_ms) || 0, function () {
+        disposeAudio(current);
+      });
+    }
+
+    function playAmbience(options) {
+      options = options || {};
+      var url = resolveUrl(options.url);
+      var gain = clamp01(options.gain == null ? 1 : options.gain);
+      var fade = Math.max(0, Number(options.fade_ms) || 0);
+      if (ambience && ambience.src === url) {
+        ambience.__minasGain = gain;
+        ramp(ambience, musicTarget(ambience), Math.min(220, fade));
+        safePlay(ambience);
+        return;
+      }
+      var previous = ambience;
+      ambience = makeAudio(url, options.loop !== false, 'ambience');
+      ambience.__minasGain = gain;
+      ambience.volume = 0;
+      safePlay(ambience);
+      ramp(ambience, musicTarget(ambience), fade);
+      if (previous) ramp(previous, 0, fade, function () { disposeAudio(previous); });
+    }
+
+    function stopAmbience(options) {
+      options = options || {};
+      var current = ambience;
+      ambience = null;
+      if (!current) return;
+      ramp(current, 0, Number(options.fade_ms) || 0, function () {
+        disposeAudio(current);
+      });
+    }
+
+    function playSfx(options) {
+      options = options || {};
+      var audio = makeAudio(options.url, false, 'sfx');
+      audio.__minasGain = clamp01(options.gain == null ? 1 : options.gain);
+      audio.volume = clamp01(audio.__minasGain * sfxMaster);
+      audio.playbackRate = Math.max(0.55, Math.min(1.65, Number(options.rate) || 1));
+      effects.push(audio);
+      function cleanup() {
+        var index = effects.indexOf(audio);
+        if (index >= 0) effects.splice(index, 1);
+        disposeAudio(audio);
+      }
+      audio.addEventListener('ended', cleanup, { once: true });
+      audio.addEventListener('error', cleanup, { once: true });
+      safePlay(audio);
+      while (effects.length > 28) {
+        var old = effects.shift();
+        disposeAudio(old);
+      }
+    }
+
+    function setVolumes(options) {
+      options = options || {};
+      musicMaster = clamp01(options.music == null ? musicMaster : options.music);
+      sfxMaster = clamp01(options.sfx == null ? sfxMaster : options.sfx);
+      if (activeMusic) activeMusic.volume = musicTarget(activeMusic);
+      if (ambience) ambience.volume = musicTarget(ambience);
+      for (var i = 0; i < effects.length; i++) {
+        var effect = effects[i];
+        if (effect && effect.__minasGain != null) effect.volume = clamp01(effect.__minasGain * sfxMaster);
+      }
+    }
+
+    function unlock() {
+      safePlay(activeMusic);
+      safePlay(ambience);
+      for (var i = 0; i < effects.length; i++) safePlay(effects[i]);
+    }
+
+    return {
+      playMusic: playMusic,
+      stopMusic: stopMusic,
+      playAmbience: playAmbience,
+      stopAmbience: stopAmbience,
+      playSfx: playSfx,
+      setVolumes: setVolumes,
+      unlock: unlock
+    };
+  })();
 
   if (NativeAudioContext) {
     function MinasAudioContext() {
@@ -389,7 +596,7 @@ progress#status-progress,
 <!-- WEB_AUDIO_UNLOCK_END -->
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":96805356,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":87639424,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
