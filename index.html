@@ -326,9 +326,70 @@ progress#status-progress,
 		})();
 		</script>
 
+		<!-- WEB_AUDIO_UNLOCK_START -->
+<script id="minas-web-audio-unlock">
+(function () {
+  var NativeAudioContext = window.AudioContext || window.webkitAudioContext;
+  var contexts = window.__minasAudioContexts || [];
+  window.__minasAudioContexts = contexts;
+  window.__minasAudioGestureSeen = window.__minasAudioGestureSeen === true;
+
+  function remember(context) {
+    if (context && contexts.indexOf(context) < 0) contexts.push(context);
+    return context;
+  }
+
+  function resumeContext(context) {
+    if (!context || typeof context.resume !== 'function') return;
+    if (context.state === 'running') return;
+    try {
+      var pending = context.resume();
+      if (pending && pending.catch) pending.catch(function () {});
+    } catch (e) {}
+  }
+
+  window.minasUnlockAudio = function () {
+    window.__minasAudioGestureSeen = true;
+    for (var i = 0; i < contexts.length; i++) resumeContext(contexts[i]);
+    return contexts.length;
+  };
+
+  window.minasAudioState = function () {
+    var states = [];
+    for (var i = 0; i < contexts.length; i++) {
+      states.push(contexts[i] && contexts[i].state ? contexts[i].state : 'unknown');
+    }
+    return { gestureSeen: window.__minasAudioGestureSeen, contexts: contexts.length, states: states };
+  };
+
+  if (NativeAudioContext) {
+    function MinasAudioContext() {
+      var args = Array.prototype.slice.call(arguments);
+      var context = Reflect.construct(NativeAudioContext, args);
+      remember(context);
+      if (window.__minasAudioGestureSeen) resumeContext(context);
+      return context;
+    }
+    MinasAudioContext.prototype = NativeAudioContext.prototype;
+    try { Object.setPrototypeOf(MinasAudioContext, NativeAudioContext); } catch (e) {}
+    try {
+      if (window.AudioContext === NativeAudioContext) window.AudioContext = MinasAudioContext;
+      if (window.webkitAudioContext === NativeAudioContext) window.webkitAudioContext = MinasAudioContext;
+    } catch (e) {}
+  }
+
+  function unlockFromGesture() { window.minasUnlockAudio(); }
+  window.addEventListener('pointerdown', unlockFromGesture, { passive: true, capture: true });
+  window.addEventListener('touchstart', unlockFromGesture, { passive: true, capture: true });
+  window.addEventListener('mousedown', unlockFromGesture, { passive: true, capture: true });
+  window.addEventListener('keydown', unlockFromGesture, { passive: true, capture: true });
+  window.addEventListener('click', unlockFromGesture, { passive: true, capture: true });
+})();
+</script>
+<!-- WEB_AUDIO_UNLOCK_END -->
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":96803516,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":96805356,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
@@ -552,6 +613,7 @@ const engine = new Engine(GODOT_CONFIG);
   // Primer toque: intentar Fullscreen API (Android Chrome en pestana)
   var fsTried = false;
   function onFirstGesture() {
+	if (window.minasUnlockAudio) window.minasUnlockAudio();
     applyFullscreenLayout();
     if (!fsTried) {
       fsTried = true;
