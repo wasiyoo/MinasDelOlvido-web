@@ -4,7 +4,7 @@
 // Incrementing CACHE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
 /** @type {string} */
-const CACHE_VERSION = '1785220733|7586235';
+const CACHE_VERSION = '1785238157|5592990';
 /** @type {string} */
 const CACHE_PREFIX = 'Minas del Olvido-sw-cache-';
 const CACHE_NAME = CACHE_PREFIX + CACHE_VERSION;
