@@ -522,6 +522,7 @@ progress#status-progress,
     function playSfx(options) {
       options = options || {};
       var audio = makeAudio(options.url, false, 'sfx');
+      audio.__minasKey = String(options.key || '');
       audio.__minasGain = clamp01(options.gain == null ? 1 : options.gain);
       audio.volume = clamp01(audio.__minasGain * sfxMaster);
       audio.playbackRate = Math.max(0.55, Math.min(1.65, Number(options.rate) || 1));
@@ -537,6 +538,19 @@ progress#status-progress,
       while (effects.length > 28) {
         var old = effects.shift();
         disposeAudio(old);
+      }
+    }
+
+    function stopSfx(options) {
+      options = options || {};
+      var key = String(options.key || '');
+      if (!key) return;
+      for (var i = effects.length - 1; i >= 0; i--) {
+        var effect = effects[i];
+        if (effect && effect.__minasKey === key) {
+          effects.splice(i, 1);
+          disposeAudio(effect);
+        }
       }
     }
 
@@ -564,6 +578,7 @@ progress#status-progress,
       playAmbience: playAmbience,
       stopAmbience: stopAmbience,
       playSfx: playSfx,
+      stopSfx: stopSfx,
       setVolumes: setVolumes,
       unlock: unlock
     };
@@ -596,7 +611,7 @@ progress#status-progress,
 <!-- WEB_AUDIO_UNLOCK_END -->
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":87639424,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":87643952,"index.wasm":39509339},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"index.service.worker.js"};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
